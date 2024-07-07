@@ -30,16 +30,6 @@ isfsal(tab::DiffEqBase.ExplicitRKTableau) = tab.fsal
 
 # isfsal(alg::CompositeAlgorithm) = isfsal(alg.algs[alg.current])
 isfsal(alg::FunctionMap) = false
-isfsal(alg::Rodas3P) = false
-isfsal(alg::Rodas23W) = false
-isfsal(alg::Rodas5) = false
-isfsal(alg::Rodas5P) = false
-isfsal(alg::Rodas5Pr) = false
-isfsal(alg::Rodas5Pe) = false
-isfsal(alg::Rodas4) = false
-isfsal(alg::Rodas42) = false
-isfsal(alg::Rodas4P) = false
-isfsal(alg::Rodas4P2) = false
 isfsal(alg::Vern7) = false
 isfsal(alg::Vern8) = false
 isfsal(alg::Vern9) = false
@@ -158,8 +148,6 @@ isadaptive(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = false
 isadaptive(alg::OrdinaryDiffEqAdaptiveAlgorithm) = true
 isadaptive(alg::OrdinaryDiffEqCompositeAlgorithm) = all(isadaptive.(alg.algs))
 isadaptive(alg::DImplicitEuler) = true
-isadaptive(alg::DABDF2) = true
-isadaptive(alg::DFBDF) = true
 
 anyadaptive(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = isadaptive(alg)
 anyadaptive(alg::OrdinaryDiffEqCompositeAlgorithm) = any(isadaptive, alg.algs)
@@ -352,12 +340,8 @@ alg_extrapolates(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = false
 alg_extrapolates(alg::CompositeAlgorithm) = any(alg_extrapolates.(alg.algs))
 alg_extrapolates(alg::ImplicitEuler) = true
 alg_extrapolates(alg::DImplicitEuler) = true
-alg_extrapolates(alg::DABDF2) = true
 alg_extrapolates(alg::Trapezoid) = true
 alg_extrapolates(alg::SDIRK22) = true
-alg_extrapolates(alg::ABDF2) = true
-alg_extrapolates(alg::SBDF) = true
-alg_extrapolates(alg::MEBDF2) = true
 alg_extrapolates(alg::MagnusLeapfrog) = true
 
 function alg_order(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm})
@@ -378,9 +362,7 @@ function get_current_adaptive_order(alg::OrdinaryDiffEqAdamsVarOrderVarStepAlgor
 end
 get_current_alg_order(alg::JVODE, cache) = get_current_adaptive_order(alg, cache)
 get_current_alg_order(alg::QNDF, cache) = cache.order
-get_current_alg_order(alg::FBDF, cache) = cache.order
 get_current_adaptive_order(alg::QNDF, cache) = cache.order
-get_current_adaptive_order(alg::FBDF, cache) = cache.order
 
 #alg_adaptive_order(alg::OrdinaryDiffEqAdaptiveAlgorithm) = error("Algorithm is adaptive with no order")
 function get_current_adaptive_order(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm},
@@ -467,7 +449,6 @@ alg_order(alg::LinearExponential) = 1
 alg_order(alg::MagnusLeapfrog) = 2
 alg_order(alg::Trapezoid) = 2
 alg_order(alg::ImplicitMidpoint) = 2
-alg_order(alg::TRBDF2) = 2
 alg_order(alg::SSPSDIRK2) = 2
 alg_order(alg::SDIRK2) = 2
 alg_order(alg::SDIRK22) = 2
@@ -495,42 +476,6 @@ alg_order(alg::Hairer4) = 4
 alg_order(alg::Hairer42) = 4
 alg_order(alg::PFRK87) = 8
 
-alg_order(alg::ROS2) = 2
-alg_order(alg::ROS2PR) = 2
-alg_order(alg::ROS2S) = 2
-alg_order(alg::ROS3) = 3
-alg_order(alg::ROS3PR) = 3
-alg_order(alg::Scholz4_7) = 3
-alg_order(alg::Rosenbrock23) = 2
-alg_order(alg::Rodas23W) = 3
-alg_order(alg::Rosenbrock32) = 3
-alg_order(alg::ROS3P) = 3
-alg_order(alg::Rodas3) = 3
-alg_order(alg::Rodas3P) = 3
-alg_order(alg::ROS34PW1a) = 3
-alg_order(alg::ROS34PW1b) = 3
-alg_order(alg::ROS34PW2) = 3
-alg_order(alg::ROS34PW3) = 4
-alg_order(alg::ROS34PRw) = 3
-alg_order(alg::ROS3PRL) = 3
-alg_order(alg::ROS3PRL2) = 3
-alg_order(alg::ROK4a) = 4
-alg_order(alg::RosShamp4) = 4
-alg_order(alg::Veldd4) = 4
-alg_order(alg::Velds4) = 4
-alg_order(alg::GRK4T) = 4
-alg_order(alg::GRK4A) = 4
-alg_order(alg::Ros4LStab) = 4
-alg_order(alg::RosenbrockW6S4OS) = 4
-alg_order(alg::Rodas4) = 4
-alg_order(alg::Rodas42) = 4
-alg_order(alg::Rodas4P) = 4
-alg_order(alg::Rodas4P2) = 4
-alg_order(alg::Rodas5) = 5
-alg_order(alg::Rodas5P) = 5
-alg_order(alg::Rodas5Pr) = 5
-alg_order(alg::Rodas5Pe) = 5
-
 alg_order(alg::AB3) = 3
 alg_order(alg::AB4) = 4
 alg_order(alg::AB5) = 5
@@ -553,21 +498,15 @@ alg_order(alg::CNLF2) = 2
 alg_order(alg::AN5) = 5
 alg_order(alg::JVODE) = 1  #dummy value
 
-alg_order(alg::ABDF2) = 2
 alg_order(alg::QNDF1) = 1
 alg_order(alg::QNDF2) = 2
 
 alg_order(alg::QNDF) = 1 #dummy value
-alg_order(alg::FBDF) = 1 #dummy value
 
-alg_order(alg::SBDF) = alg.order
 
-alg_order(alg::MEBDF2) = 2
 alg_order(alg::PDIRK44) = 4
 
 alg_order(alg::DImplicitEuler) = 1
-alg_order(alg::DABDF2) = 2
-alg_order(alg::DFBDF) = 1#dummy value
 
 alg_order(alg::Alshina2) = 2
 alg_order(alg::Alshina3) = 3
@@ -580,9 +519,6 @@ alg_maximum_order(alg::CompositeAlgorithm) = maximum(alg_order(x) for x in alg.a
 
 alg_adaptive_order(alg::ExplicitRK) = alg.tableau.adaptiveorder
 alg_adaptive_order(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = alg_order(alg) - 1
-
-alg_adaptive_order(alg::Rosenbrock23) = 3
-alg_adaptive_order(alg::Rosenbrock32) = 2
 
 alg_adaptive_order(alg::RadauIIA3) = 1
 alg_adaptive_order(alg::RadauIIA5) = 3
@@ -651,7 +587,6 @@ gamma_default(alg::CompositeAlgorithm) = maximum(gamma_default, alg.algs)
 fac_default_gamma(alg) = false
 
 qsteady_min_default(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = 1
-qsteady_min_default(alg::FBDF) = 9 // 10
 qsteady_max_default(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = 1
 qsteady_max_default(alg::OrdinaryDiffEqAdaptiveImplicitAlgorithm) = 6 // 5
 # But don't re-use Jacobian if not adaptive: too risky and cannot pull back
@@ -661,7 +596,6 @@ qsteady_max_default(alg::JVODE) = 3 // 2
 qsteady_max_default(alg::QNDF1) = 2 // 1
 qsteady_max_default(alg::QNDF2) = 2 // 1
 qsteady_max_default(alg::QNDF) = 2 // 1
-qsteady_max_default(alg::FBDF) = 2 // 1
 
 #TODO
 #DiffEqBase.nlsolve_default(::QNDF, ::Val{κ}) = 1//2
@@ -749,19 +683,7 @@ isstandard(alg::OrdinaryDiffEqNewtonAdaptiveAlgorithm) = alg.controller === :Sta
 isstandard(alg::VCABM) = true
 
 isWmethod(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = false
-isWmethod(alg::Rosenbrock23) = true
-isWmethod(alg::Rosenbrock32) = true
-isWmethod(alg::Rodas23W) = true
-isWmethod(alg::ROS2S) = true
-isWmethod(alg::ROS34PW1a) = true
-isWmethod(alg::ROS34PW1b) = true
-isWmethod(alg::ROS34PW2) = true
-isWmethod(alg::ROS34PW3) = true
-isWmethod(alg::ROS34PRw) = true
-isWmethod(alg::ROK4a) = true
-isWmethod(alg::RosenbrockW6S4OS) = true
 
-isesdirk(alg::TRBDF2) = true
 function isesdirk(alg::Union{KenCarp3, KenCarp4, KenCarp5, KenCarp58,
         Kvaerno3, Kvaerno4, Kvaerno5, ESDIRK437L2SA,
         ESDIRK54I8L2SA, ESDIRK436L2SA2, ESDIRK547L2SA2,
@@ -772,7 +694,6 @@ isesdirk(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = false
 
 is_mass_matrix_alg(alg::Union{OrdinaryDiffEqAlgorithm, DAEAlgorithm}) = false
 is_mass_matrix_alg(alg::CompositeAlgorithm) = all(is_mass_matrix_alg, alg.algs)
-is_mass_matrix_alg(alg::RosenbrockAlgorithm) = true
 is_mass_matrix_alg(alg::NewtonAlgorithm) = !isesdirk(alg)
 # hack for the default alg
 function is_mass_matrix_alg(alg::CompositeAlgorithm{
