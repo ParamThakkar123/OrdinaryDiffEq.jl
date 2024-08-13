@@ -1,3 +1,4 @@
+alg_order(alg::KYK2014DGSSPRK_3S2) = 2
 alg_order(alg::ORK256) = 2
 alg_order(alg::CarpenterKennedy2N54) = 4
 alg_order(alg::NDBLSRK124) = 4
@@ -40,8 +41,6 @@ alg_order(alg::CKLLSRK54_3N_4R) = 4
 alg_order(alg::CKLLSRK75_4M_5R) = 5
 alg_order(alg::CKLLSRK54_3M_4R) = 4
 alg_order(alg::CKLLSRK65_4M_4R) = 5
-alg_order(alg::SHLDDRK_2N) = 4
-alg_order(alg::SHLDDRK52) = 2
 
 isfsal(alg::ORK256) = false
 isfsal(alg::CarpenterKennedy2N54) = false
