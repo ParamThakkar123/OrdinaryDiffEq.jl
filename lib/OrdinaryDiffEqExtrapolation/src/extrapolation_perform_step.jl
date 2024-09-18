@@ -290,7 +290,7 @@ function perform_step!(integrator, cache::ImplicitEulerExtrapolationCache,
         calc_J!(J, integrator, cache) # Store the calculated jac as it won't change in internal discretisation
         for index in 1:(n_curr + 1)
             dt_temp = dt / sequence[index]
-            jacobian2W!(W[1], integrator.f.mass_matrix, dt_temp, J, true)
+            jacobian2W!(W[1], integrator.f.mass_matrix, dt_temp, J)
             integrator.stats.nw += 1
             @.. broadcast=false k_tmps[1]=integrator.fsalfirst
             @.. broadcast=false u_tmps[1]=uprev
@@ -344,9 +344,7 @@ function perform_step!(integrator, cache::ImplicitEulerExtrapolationCache,
                 endIndex = (i == 1) ? n_curr : n_curr + 1
                 for index in startIndex:endIndex
                     dt_temp = dt / sequence[index]
-                    jacobian2W!(
-                        W[Threads.threadid()], integrator.f.mass_matrix, dt_temp, J,
-                        true)
+                    jacobian2W!(W[Threads.threadid()], integrator.f.mass_matrix, dt_temp, J)
                     @.. broadcast=false k_tmps[Threads.threadid()]=integrator.fsalfirst
                     @.. broadcast=false u_tmps[Threads.threadid()]=uprev
                     for j in 1:sequence[index]
@@ -445,7 +443,7 @@ function perform_step!(integrator, cache::ImplicitEulerExtrapolationCache,
                 cache.n_curr = n_curr
 
                 dt_temp = dt / sequence[n_curr + 1]
-                jacobian2W!(W[1], integrator.f.mass_matrix, dt_temp, J, false)
+                jacobian2W!(W[1], integrator.f.mass_matrix, dt_temp, J)
                 integrator.stats.nw += 1
                 @.. broadcast=false k_tmps[1]=integrator.fsalfirst
                 @.. broadcast=false u_tmps[1]=uprev
@@ -1170,7 +1168,7 @@ function perform_step!(integrator, cache::ImplicitDeuflhardExtrapolationCache,
         for i in 0:n_curr
             j_int = 4 * subdividing_sequence[i + 1]
             dt_int = dt / j_int # Stepsize of the ith internal discretisation
-            jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J, true)
+            jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J)
             integrator.stats.nw += 1
             @.. broadcast=false u_temp2=uprev
             @.. broadcast=false linsolve_tmps[1]=fsalfirst
@@ -1193,7 +1191,7 @@ function perform_step!(integrator, cache::ImplicitDeuflhardExtrapolationCache,
             for j in 2:j_int
                 f(k, cache.u_temp1, p, t + (j - 1) * dt_int)
                 OrdinaryDiffEqCore.increment_nf!(integrator.stats, 1)
-                @.. broadcast=false linsolve_tmps[1]=k - (u_temp1 - u_temp2)/dt_int
+                @.. broadcast=false linsolve_tmps[1]=k - (u_temp1 - u_temp2) / dt_int
 
                 linsolve = cache.linsolve[1]
 
@@ -1241,7 +1239,7 @@ function perform_step!(integrator, cache::ImplicitDeuflhardExtrapolationCache,
                         j_int_temp = 4 * subdividing_sequence[index + 1]
                         dt_int_temp = dt / j_int_temp # Stepsize of the ith internal discretisation
                         jacobian2W!(W[Threads.threadid()], integrator.f.mass_matrix,
-                            dt_int_temp, J, true)
+                            dt_int_temp, J)
                         @.. broadcast=false u_temp4[Threads.threadid()]=uprev
                         @.. broadcast=false linsolve_tmps[Threads.threadid()]=fsalfirst
 
@@ -1270,7 +1268,8 @@ function perform_step!(integrator, cache::ImplicitDeuflhardExtrapolationCache,
                                 p, t + (j - 1) * dt_int_temp)
                             @.. broadcast=false linsolve_tmps[Threads.threadid()]=k_tmps[Threads.threadid()] -
                                                                                   (u_temp3[Threads.threadid()] -
-                                                                                   u_temp4[Threads.threadid()])/dt_int_temp
+                                                                                   u_temp4[Threads.threadid()]) /
+                                                                                  dt_int_temp
 
                             linsolve = cache.linsolve[Threads.threadid()]
 
@@ -1325,7 +1324,7 @@ function perform_step!(integrator, cache::ImplicitDeuflhardExtrapolationCache,
                         j_int_temp = 4 * subdividing_sequence[index + 1]
                         dt_int_temp = dt / j_int_temp # Stepsize of the ith internal discretisation
                         jacobian2W!(W[Threads.threadid()], integrator.f.mass_matrix,
-                            dt_int_temp, J, true)
+                            dt_int_temp, J)
                         @.. broadcast=false u_temp4[Threads.threadid()]=uprev
                         @.. broadcast=false linsolve_tmps[Threads.threadid()]=fsalfirst
 
@@ -1354,7 +1353,8 @@ function perform_step!(integrator, cache::ImplicitDeuflhardExtrapolationCache,
                                 p, t + (j - 1) * dt_int_temp)
                             @.. broadcast=false linsolve_tmps[Threads.threadid()]=k_tmps[Threads.threadid()] -
                                                                                   (u_temp3[Threads.threadid()] -
-                                                                                   u_temp4[Threads.threadid()])/dt_int_temp
+                                                                                   u_temp4[Threads.threadid()]) /
+                                                                                  dt_int_temp
 
                             linsolve = cache.linsolve[Threads.threadid()]
 
@@ -1448,7 +1448,7 @@ function perform_step!(integrator, cache::ImplicitDeuflhardExtrapolationCache,
                 # Update cache.T
                 j_int = 4 * subdividing_sequence[n_curr + 1]
                 dt_int = dt / j_int # Stepsize of the new internal discretisation
-                jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J, true)
+                jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J)
                 integrator.stats.nw += 1
                 @.. broadcast=false u_temp2=uprev
                 @.. broadcast=false linsolve_tmps[1]=fsalfirst
@@ -2534,7 +2534,7 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
         for i in 0:n_curr
             j_int = 4 * subdividing_sequence[i + 1]
             dt_int = dt / j_int # Stepsize of the ith internal discretisation
-            jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J, true)
+            jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J)
             integrator.stats.nw += 1
             @.. broadcast=false u_temp2=uprev
             @.. broadcast=false linsolve_tmps[1]=fsalfirst
@@ -2555,7 +2555,7 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
             for j in 2:(j_int + 1)
                 f(k, cache.u_temp1, p, t + (j - 1) * dt_int)
                 OrdinaryDiffEqCore.increment_nf!(integrator.stats, 1)
-                @.. broadcast=false linsolve_tmps[1]=k - (u_temp1 - u_temp2)/dt_int
+                @.. broadcast=false linsolve_tmps[1]=k - (u_temp1 - u_temp2) / dt_int
 
                 linsolve = cache.linsolve[1]
 
@@ -2608,7 +2608,7 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
                         j_int_temp = 4 * subdividing_sequence[index + 1]
                         dt_int_temp = dt / j_int_temp # Stepsize of the ith internal discretisation
                         jacobian2W!(W[Threads.threadid()], integrator.f.mass_matrix,
-                            dt_int_temp, J, true)
+                            dt_int_temp, J)
                         @.. broadcast=false u_temp4[Threads.threadid()]=uprev
                         @.. broadcast=false linsolve_tmps[Threads.threadid()]=fsalfirst
 
@@ -2634,9 +2634,10 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
                             f(k_tmps[Threads.threadid()],
                                 cache.u_temp3[Threads.threadid()],
                                 p, t + (j - 1) * dt_int_temp)
-                            @.. broadcast=false linsolve_tmps[Threads.threadid()]= k_tmps[Threads.threadid()] -
+                            @.. broadcast=false linsolve_tmps[Threads.threadid()]=k_tmps[Threads.threadid()] -
                                                                                   (u_temp3[Threads.threadid()] -
-                                                                                   u_temp4[Threads.threadid()]) / dt_int_temp
+                                                                                   u_temp4[Threads.threadid()]) /
+                                                                                  dt_int_temp
 
                             linsolve = cache.linsolve[Threads.threadid()]
                             if !repeat_step && j == 1
@@ -2698,7 +2699,7 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
                         index == -1 && continue
                         j_int_temp = 4 * subdividing_sequence[index + 1]
                         dt_int_temp = dt / j_int_temp # Stepsize of the ith internal discretisation
-                        jacobian2W!(W[tid], integrator.f.mass_matrix, dt_int_temp, J, true)
+                        jacobian2W!(W[tid], integrator.f.mass_matrix, dt_int_temp, J)
                         @.. broadcast=false u_temp4[tid]=uprev
                         @.. broadcast=false linsolvetmp=fsalfirst
 
@@ -2717,7 +2718,8 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
                         for j in 2:(j_int_temp + 1)
                             f(ktmp, cache.u_temp3[tid], p, t + (j - 1) * dt_int_temp)
                             @.. broadcast=false linsolvetmp=ktmp -
-                                                            (u_temp3[tid] - u_temp4[tid])/dt_int_temp
+                                                            (u_temp3[tid] - u_temp4[tid]) /
+                                                            dt_int_temp
 
                             linsolve = cache.linsolve[tid]
 
@@ -2811,7 +2813,7 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
                 # Update cache.T
                 j_int = 4 * subdividing_sequence[n_curr + 1]
                 dt_int = dt / j_int # Stepsize of the new internal discretisation
-                jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J, true)
+                jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J)
                 integrator.stats.nw += 1
                 @.. broadcast=false u_temp2=uprev
                 @.. broadcast=false linsolve_tmps[1]=fsalfirst
@@ -2832,7 +2834,7 @@ function perform_step!(integrator, cache::ImplicitHairerWannerExtrapolationCache
                 for j in 2:(j_int + 1)
                     f(k, cache.u_temp1, p, t + (j - 1) * dt_int)
                     OrdinaryDiffEqCore.increment_nf!(integrator.stats, 1)
-                    @.. broadcast=false linsolve_tmps[1]=k - (u_temp1 - u_temp2)/dt_int
+                    @.. broadcast=false linsolve_tmps[1]=k - (u_temp1 - u_temp2) / dt_int
 
                     linsolve = cache.linsolve[1]
 
@@ -3223,7 +3225,7 @@ function perform_step!(integrator, cache::ImplicitEulerBarycentricExtrapolationC
         for i in 0:n_curr
             j_int = sequence_factor * subdividing_sequence[i + 1]
             dt_int = dt / j_int # Stepsize of the ith internal discretisation
-            jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J, true)
+            jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J)
             integrator.stats.nw += 1
             @.. broadcast=false u_temp2=uprev
             @.. broadcast=false linsolve_tmps[1]=fsalfirst
@@ -3297,7 +3299,7 @@ function perform_step!(integrator, cache::ImplicitEulerBarycentricExtrapolationC
                         j_int_temp = sequence_factor * subdividing_sequence[index + 1]
                         dt_int_temp = dt / j_int_temp # Stepsize of the ith internal discretisation
                         jacobian2W!(W[Threads.threadid()], integrator.f.mass_matrix,
-                            dt_int_temp, J, true)
+                            dt_int_temp, J)
                         @.. broadcast=false u_temp4[Threads.threadid()]=uprev
                         @.. broadcast=false linsolve_tmps[Threads.threadid()]=fsalfirst
 
@@ -3385,7 +3387,7 @@ function perform_step!(integrator, cache::ImplicitEulerBarycentricExtrapolationC
                         j_int_temp = sequence_factor * subdividing_sequence[index + 1]
                         dt_int_temp = dt / j_int_temp # Stepsize of the ith internal discretisation
                         jacobian2W!(W[Threads.threadid()], integrator.f.mass_matrix,
-                            dt_int_temp, J, true)
+                            dt_int_temp, J)
                         @.. broadcast=false u_temp4[Threads.threadid()]=uprev
                         @.. broadcast=false linsolve_tmps[Threads.threadid()]=fsalfirst
 
@@ -3515,7 +3517,7 @@ function perform_step!(integrator, cache::ImplicitEulerBarycentricExtrapolationC
                 # Update cache.T
                 j_int = sequence_factor * subdividing_sequence[n_curr + 1]
                 dt_int = dt / j_int # Stepsize of the new internal discretisation
-                jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J, true)
+                jacobian2W!(W[1], integrator.f.mass_matrix, dt_int, J)
                 integrator.stats.nw += 1
                 @.. broadcast=false u_temp2=uprev
                 @.. broadcast=false linsolve_tmps[1]=fsalfirst
